@@ -23,9 +23,9 @@ def get_version(version, length):
 
 def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, version=VERSION):
     payload = str(seed) + str(timestamp) + str(sum(SPEEDS) / len(SPEEDS))
-    random.seed(seed)
 
     if version == "1.0":
+        random.seed(seed)
         TH = get_rand()
         random.seed(payload)
         line = ""
@@ -41,6 +41,7 @@ def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, ver
         return line
 
     elif version == "1.1":
+        random.seed(seed)
         TH = [get_rand(), get_rand()]
         TH.sort()
         random.seed(payload)
@@ -78,6 +79,7 @@ if __name__ == "__main__":
                 if a == 6000: SPEEDS[3] = 25
                 if a == 7000: SPEEDS[3] = 10
                 f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
+                if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
                 t += 1
                 #time.sleep(1)
             f.write(get_version(VERSION, COMPLEXITY)[1])
@@ -91,6 +93,7 @@ if __name__ == "__main__":
             f.write(get_version(VERSION, COMPLEXITY)[0])
             for a in range(DURRATION):
                 f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
+                if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
                 t += 1
                 #time.sleep(1)
             f.write(get_version(VERSION, COMPLEXITY)[1])
