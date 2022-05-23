@@ -2,12 +2,14 @@ import random
 import time
 import math
 import sys
+import hashlib
 DEBUG = False
 COMPLEXITY = 70
 EXTRA_COMPLEX = False
 DURRATION = 86400
-VERSION = "1.1"
+VERSION = "1.2"
 SYMBOLS = ["-", "~", "="]
+SPEEDS = [10, 10, 10, 10]
 
 def get_rand():
     return random.random()
@@ -20,11 +22,12 @@ def get_version(version, length):
     return (("#" * padding) + " " + prompt + " " + ("#" * padding) + "\n", ("#" * length) + "\n")
 
 def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, version=VERSION):
+    payload = str(seed) + str(timestamp) + str(sum(SPEEDS) / len(SPEEDS))
     random.seed(seed)
 
     if version == "1.0":
         TH = get_rand()
-        random.seed(str(seed) + str(timestamp))
+        random.seed(payload)
         line = ""
         for i in range(1 if not two_dimensional else COMPLEXITY):
             for j in range(COMPLEXITY):
@@ -40,7 +43,7 @@ def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, ver
     elif version == "1.1":
         TH = [get_rand(), get_rand()]
         TH.sort()
-        random.seed(str(seed) + str(timestamp))
+        random.seed(payload)
         line = ""
         for i in range(1 if not two_dimensional else COMPLEXITY):
             for j in range(COMPLEXITY):
@@ -55,8 +58,10 @@ def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, ver
         if DEBUG: print(f"Time Diff: {abs(time.time() - t)}")
         return line
 
+    elif version == "1.2":
+        return "   " + hashlib.sha3_256(payload.encode()).hexdigest() + "   \n"
     else:
-        return "VERSION NOT DEFINED"
+        return "VERSION NOT DEFINED\n"
 
 
 if __name__ == "__main__":
@@ -70,6 +75,8 @@ if __name__ == "__main__":
             f.write(f"Start Timestamp: {start_time}\n")
             f.write(get_version(VERSION, COMPLEXITY)[0])
             for a in range(DURRATION):
+                if a == 6000: SPEEDS[3] = 25
+                if a == 7000: SPEEDS[3] = 10
                 f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
                 t += 1
                 #time.sleep(1)
