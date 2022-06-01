@@ -3,10 +3,11 @@ import time
 import math
 import sys
 import hashlib
-DEBUG = False
+DEBUG = True
 COMPLEXITY = 70
 EXTRA_COMPLEX = False
 DURRATION = 86400
+TICK = 1
 VERSION = "1.2"
 SYMBOLS = ["-", "~", "="]
 SPEEDS = [10, 10, 10, 10]
@@ -64,37 +65,39 @@ def get_fingerprint(seed, timestamp, complexity=70, two_dimensional = False, ver
     else:
         return "VERSION NOT DEFINED\n"
 
-
 if __name__ == "__main__":
-    st = time.time()
-    if sys.argv[1] == "-g":
-        seed = sys.argv[2]
-        start_time = math.floor(time.time())
-        t = start_time
-    
-        with open("clock.trace", "w+") as f:
-            f.write(f"Start Timestamp: {start_time}\n")
-            f.write(get_version(VERSION, COMPLEXITY)[0])
-            for a in range(DURRATION):
-                if a == 6000: SPEEDS[3] = 25
-                if a == 7000: SPEEDS[3] = 10
-                f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
-                if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
-                t += 1
-                #time.sleep(1)
-            f.write(get_version(VERSION, COMPLEXITY)[1])
-    if sys.argv[1] == "-s":
-        seed = sys.argv[2]
-        start_time = int(sys.argv[3])
-        t = start_time
+    try:
+        st = time.time()
+        if sys.argv[1] == "-g":
+            seed = sys.argv[2]
+            start_time = math.floor(time.time())
+            t = start_time
+        
+            with open("clock.trace", "w+") as f:
+                f.write(f"Start Timestamp: {start_time}\n")
+                f.write(get_version(VERSION, COMPLEXITY)[0])
+                for a in range(DURRATION):
+                    if a == 6000: SPEEDS[3] = 25
+                    if a == 7000: SPEEDS[3] = 10
+                    f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
+                    if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
+                    t += TICK
+                    time.sleep(TICK)
+                f.write(get_version(VERSION, COMPLEXITY)[1])
+        if sys.argv[1] == "-s":
+            seed = sys.argv[2]
+            start_time = int(sys.argv[3])
+            t = start_time
 
-        with open("validation_clock.trace", "w+") as f:
-            f.write(f"Start Timestamp: {start_time}\n")
-            f.write(get_version(VERSION, COMPLEXITY)[0])
-            for a in range(DURRATION):
-                f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
-                if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
-                t += 1
-                #time.sleep(1)
-            f.write(get_version(VERSION, COMPLEXITY)[1])
-    print(f"Elapsed time: {time.time() - st}")
+            with open("validation_clock.trace", "w+") as f:
+                f.write(f"Start Timestamp: {start_time}\n")
+                f.write(get_version(VERSION, COMPLEXITY)[0])
+                for a in range(DURRATION):
+                    f.write(get_fingerprint(seed, t, complexity=COMPLEXITY))
+                    if DEBUG: print(get_fingerprint(seed, t, complexity=COMPLEXITY)[:-1])
+                    t += TICK
+                    #time.sleep(TICK)
+                f.write(get_version(VERSION, COMPLEXITY)[1])
+        print(f"Elapsed time: {time.time() - st}")
+    except KeyboardInterrupt:
+        exit()
